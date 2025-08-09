@@ -1,0 +1,31 @@
+name: WardenEssentials
+version: 1.1.0
+main: com.svhteam.lifesteal.wardenEssentials.WardenEssentials
+api-version: 1.21
+authors: [ NoFailsXD ]
+commands:
+  wessentials:
+    description: WardenEssentials main command
+    usage: /wessentials help
+  weban:
+    description: Ban a player with a reason
+    usage: /weban <player> <reason>
+    permission: wardenessentials.ban
+  weunban:
+    description: Unban a player
+    usage: /weunban <player>
+    permission: wardenessentials.unban
+  givewardenblade:
+    description: Gives the player the Warden Blade
+    usage: /givewardenblade
+    permission: wardenessentials.blade
+permissions:
+  wardenessentials.ban:
+    description: Allows banning players
+    default: op
+  wardenessentials.unban:
+    description: Allows unbanning players
+    default: op
+  wardenessentials.blade:
+    description: Allows player to get the Warden Blade
+    default: op

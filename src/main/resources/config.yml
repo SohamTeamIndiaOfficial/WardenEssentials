@@ -1,0 +1,8 @@
+messages:
+  join-welcome: "&aWelcome back to server!"
+  join-help: "&eUse '/wessentials help' to see cmds."
+  ban-message: "&cYou are banned from this server! Reason: %reason%"
+  kick-message: "&cYou have been kicked! Reason: %reason%"
+  broadcast-ban: "&c%player% was banned. Reason: %reason%"
+  broadcast-kick: "&c%player% was kicked. Reason: %reason%"
+  broadcast-unban: "&a%player% was unbanned by %sender%"
