@@ -1,5 +1,5 @@
 name: WardenEssentials
-version: 1.1.0
+version: 1.1.1
 main: com.svhteam.lifesteal.wardenEssentials.WardenEssentials
 api-version: 1.21
 authors: [ NoFailsXD ]
@@ -19,6 +19,14 @@ commands:
     description: Gives the player the Warden Blade
     usage: /givewardenblade
     permission: wardenessentials.blade
+  wekill:
+    description: Kill a player
+    usage: /wekill <player>
+    permission: wardenessentials.kill
+  wegive:
+    description: Give an item to a player
+    usage: /wegive <player> <item> [amount]
+    permission: wardenessentials.give
 permissions:
   wardenessentials.ban:
     description: Allows banning players
@@ -28,4 +36,10 @@ permissions:
     default: op
   wardenessentials.blade:
     description: Allows player to get the Warden Blade
+    default: op
+  wardenessentials.kill:
+    description: Allow killing players
+    default: op
+  wardenessentials.give:
+    description: Allow giving items
     default: op
