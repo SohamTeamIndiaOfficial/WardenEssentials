@@ -3,12 +3,14 @@ package com.svhteam.lifesteal.wardenEssentials;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+
+
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -31,7 +33,36 @@ public class WardenEssentials extends JavaPlugin implements Listener {
         saveDefaultConfig();
         getServer().getPluginManager().registerEvents(this, this);
         getLogger().info("WardenEssentials has been enabled! Author is NoFailsXD!");
+
+        checkForUpdates();
+
     }
+    private void checkForUpdates() {
+        // The URL should point to a raw text file containing the latest version string
+        String updateUrl = "https://example.com/wardenessentials-version.txt";
+
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            try {
+                java.net.URL url = new java.net.URL(updateUrl);
+                java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+                String latestVersion = in.readLine().trim();
+                in.close();
+
+                String currentVersion = getDescription().getVersion();
+
+                if (!currentVersion.equalsIgnoreCase(latestVersion)) {
+                    getLogger().warning("A new version of WardenEssentials is available! (" + latestVersion + ")");
+                    getLogger().warning("You are running version: " + currentVersion);
+                } else {
+                    getLogger().info("WardenEssentials is up to date! (" + currentVersion + ")");
+                }
+            } catch (Exception e) {
+                getLogger().warning("Could not check for updates: " + e.getMessage());
+            }
+        });
+    }
+
+    private final java.util.Set<Player> flyingPlayers = new java.util.HashSet<>();
 
     @Override
     public void onDisable() {
@@ -74,6 +105,14 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                     sender.sendMessage(ChatColor.AQUA + "/wessentials reload" + ChatColor.WHITE + " - Reload the config");
                     sender.sendMessage(ChatColor.AQUA + "/wegive" + ChatColor.WHITE + " - Give an item to a player");
                     sender.sendMessage(ChatColor.AQUA + "/wekill" + ChatColor.WHITE + " - Kill a player");
+                    sender.sendMessage(ChatColor.AQUA + "/weup" + ChatColor.WHITE + " - Places a block beneath you");
+                    sender.sendMessage(ChatColor.AQUA + "/weeffect" + ChatColor.WHITE + " - Gives player a potion effect");
+                    sender.sendMessage(ChatColor.AQUA + "/westop" + ChatColor.WHITE + " - Stops the server " + ChatColor.RED + "(This might be dangerous.)");
+                    sender.sendMessage(ChatColor.AQUA + "/weinvsee" + ChatColor.WHITE + " - View another player's inventory ");
+                    sender.sendMessage(ChatColor.AQUA + "/wesmite" + ChatColor.WHITE + " - Strike a player with lightning");
+                    sender.sendMessage(ChatColor.AQUA + "/weheal" + ChatColor.WHITE + " - Fully heal yourself or another player");
+                    sender.sendMessage(ChatColor.AQUA + "/wetp" + ChatColor.WHITE + " - Teleport to a player");
+                    sender.sendMessage(ChatColor.AQUA + "/wetphere" + ChatColor.WHITE + " - Teleport a player to you");
                     return true;
                 }
                 if (args[0].equalsIgnoreCase("reload")) {
@@ -246,6 +285,233 @@ public class WardenEssentials extends JavaPlugin implements Listener {
 
         }
 
+        if (cmd.getName().equalsIgnoreCase("weeffect")) {
+            if (!sender.hasPermission("wardenessentials.effect")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+
+            if (args.length < 4) {
+                sender.sendMessage(ChatColor.RED + "Usage: /weeffect <player> <effect> <duration_seconds> <amplifier>");
+                return true;
+            }
+
+            Player target = Bukkit.getPlayerExact(args[0]);
+            if (target == null) {
+                sender.sendMessage(ChatColor.RED + "Player not found.");
+                return true;
+            }
+
+            try {
+                org.bukkit.potion.PotionEffectType effectType = org.bukkit.potion.PotionEffectType.getByName(args[1].toUpperCase());
+                if  (effectType == null) {
+                    sender.sendMessage(ChatColor.RED + "Invalid effect: " + args[1]);
+                    return true;
+                }
+
+                int duration =  Integer.parseInt(args[2]) * 20;
+                int amplifier = Integer.parseInt(args[3]) - 1;
+
+                target.addPotionEffect(new org.bukkit.potion.PotionEffect(effectType, duration, amplifier));
+
+                sender.sendMessage(ChatColor.GREEN + "Gave " + target.getName() + " effect " + effectType.getName()+ " for " + args[2] + " seconds (level " + args[3] + ")!");
+                target.sendMessage(ChatColor.GOLD + "You were given " + effectType.getName() + " for " + args[2] + " seconds (level " + args[3] + ")!");
+            }  catch (NumberFormatException e) {
+                sender.sendMessage(ChatColor.RED + "Duration and amplifier must be numbers.");
+            }
+
+            return true;
+        }
+
+        if (cmd.getName().equalsIgnoreCase("westop")) {
+            if (!sender.isOp() && !sender.hasPermission("wardenessentials.stop")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+
+            Bukkit.broadcastMessage(ChatColor.RED + "⚠ The server is shutting down...");
+
+            Bukkit.getWorlds().forEach(world -> {
+                world.save();
+                getLogger().info("Saved world: " + world.getName());
+            });
+
+            Bukkit.getOnlinePlayers().forEach(p -> {
+                p.saveData();
+                getLogger().info("Saved player data for: " + p.getName());
+            });
+
+            Bukkit.getScheduler().runTaskLater(this, Bukkit::shutdown, 20L);
+
+            return true;
+        }
+
+        if (cmd.getName().equalsIgnoreCase("weinvsee")) {
+            if (!sender.hasPermission("wardenessentials.invsee")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+                return true;
+            }
+            if (args.length != 1) {
+                sender.sendMessage(ChatColor.RED + "Usage: /weinvsee <player>");
+                return true;
+            }
+            Player target = Bukkit.getPlayer(args[0]);
+            if (target == null) {
+                sender.sendMessage(ChatColor.RED + "Player not found!");
+                return true;
+            }
+            ((Player) sender).openInventory(target.getInventory());
+            sender.sendMessage(ChatColor.GREEN + "You are now viewing " + target.getName() + "'s inventory.");
+            return true;
+        }
+
+        if (cmd.getName().equalsIgnoreCase("wesmite")) {
+            if (!sender.hasPermission("wardenessentials.smite")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+            if (args.length != 1) {
+                sender.sendMessage(ChatColor.RED + "Usage: /wesmite <player>");
+                return true;
+            }
+            Player target = Bukkit.getPlayer(args[0]);
+            if (target == null) {
+                sender.sendMessage(ChatColor.RED + "Player not found!");
+                return true;
+            }
+            target.getWorld().strikeLightning(target.getLocation());
+            Bukkit.broadcastMessage(ChatColor.YELLOW + target.getName() + " has been smitten by the gods!");
+            return true;
+        }
+
+        if  (cmd.getName().equalsIgnoreCase("weheal")) {
+            if (!sender.hasPermission("wardenessentials.heal")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+            if (args.length == 0) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(ChatColor.RED + "Console must specify a player: /weheal <player>");
+                    return true;
+                }
+                Player p =  (Player) sender;
+                p.setHealth(p.getMaxHealth());
+                p.setFoodLevel(20);
+                p.setSaturation(20);
+                p.setFireTicks(0);
+                p.getActivePotionEffects().forEach(effect -> p.removePotionEffect(effect.getType()));
+                p.sendMessage(ChatColor.GREEN + "You have been fully healed!");
+                return true;
+            } else {
+                Player target = Bukkit.getPlayer(args[0]);
+                if (target == null) {
+                    sender.sendMessage(ChatColor.RED + "Player not found!");
+                    return true;
+                }
+                target.setHealth(target.getMaxHealth());
+                target.setFoodLevel(20);
+                target.setSaturation(20);
+                target.setFireTicks(0);
+                target.getActivePotionEffects().forEach(effect -> target.removePotionEffect(effect.getType()));
+                target.sendMessage(ChatColor.GREEN + "You have been fully healed!");
+                sender.sendMessage(ChatColor.GREEN + "You healed " + target.getName() + ".");
+                return true;
+            }
+        }
+
+        if (cmd.getName().equalsIgnoreCase("wefly")) {
+            if (!sender.hasPermission("wardenessentials.fly")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+
+            if (args.length == 0) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(ChatColor.RED + "Console must specify a player: /wefly <player>");
+                    return true;
+                }
+                Player p =  (Player) sender;
+                boolean enable = !p.getAllowFlight();
+                p.setAllowFlight(enable);
+                if (!enable) p.setFlying(false);
+                p.sendMessage(enable ? ChatColor.GREEN + "Flight enabled." : ChatColor.RED + "Flight disabled.");
+                return true;
+            } else {
+                Player target = Bukkit.getPlayerExact(args[0]);
+                if (target == null) {
+                    sender.sendMessage(ChatColor.RED + "Player not found.");
+                    return true;
+                }
+                boolean enable = !target.getAllowFlight();
+                target.setAllowFlight(enable);
+                if (!enable) target.setFlying(false);
+                target.sendMessage(enable ?  ChatColor.GREEN + "Flight enabled." : ChatColor.RED + "Flight disabled.");
+                sender.sendMessage(enable
+                ? ChatColor.GREEN + "Enabled flight for " + target.getName()
+                        : ChatColor.RED + "Disabled flight for " + target.getName());
+                return true;
+            }
+        }
+
+        if (cmd.getName().equalsIgnoreCase("wetp")) {
+            if (!sender.hasPermission("wardenessentials.tp")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+                return true;
+            }
+            if (args.length != 1) {
+                sender.sendMessage(ChatColor.RED + "Usage: /wetp <player>");
+                return true;
+            }
+            Player target = Bukkit.getPlayerExact(args[0]);
+            if (target == null) {
+                sender.sendMessage(ChatColor.RED + "Player not found!");
+                return true;
+            }
+            Player pl = (Player) sender;
+            target.teleport(pl.getLocation());
+            pl.sendMessage(ChatColor.GREEN + "Teleported to " + target.getName() + ".");
+            return true;
+
+        }
+
+        if (cmd.getName().equalsIgnoreCase("wetphere")) {
+            if  (!sender.hasPermission("wardenessentials.tphere")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+                return true;
+            }
+            if (args.length != 1) {
+                sender.sendMessage(ChatColor.RED + "Usage: /wetphere <player>");
+                return true;
+            }
+
+            Player target = Bukkit.getPlayerExact(args[0]);
+            if (target == null) {
+                sender.sendMessage(ChatColor.RED + "Player not found!");
+                return true;
+            }
+
+            Player pl1 = (Player) sender;
+            target.teleport(pl1.getLocation());
+            pl1.sendMessage(ChatColor.GREEN + "Teleported " + target.getName() + " to you.");
+            target.sendMessage(ChatColor.GREEN + "You have been teleported to " + pl1.getName() + ".");
+            return true;
+        }
+
+
+
         return false;
     }
 
@@ -267,3 +533,4 @@ public class WardenEssentials extends JavaPlugin implements Listener {
         return blade;
     }
 }
+

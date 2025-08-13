@@ -1,5 +1,5 @@
 name: WardenEssentials
-version: 1.1.1
+version: 1.1.3
 main: com.svhteam.lifesteal.wardenEssentials.WardenEssentials
 api-version: 1.21
 authors: [ NoFailsXD ]
@@ -27,6 +27,42 @@ commands:
     description: Give an item to a player
     usage: /wegive <player> <item> [amount]
     permission: wardenessentials.give
+  weup:
+    description: Place a block under you and go up.
+    usage: /weup [height]
+    permission: wardenessentials.up
+  weeffect:
+    description: Gives a player a potion effect
+    usage: /weeffect <player> <effect> <duration_seconds> <amplifier>
+    permission: wardenessentials.effect
+  westop:
+    description: Stops the server
+    usage: /westop
+    permission: wardenessentials.stop
+  weinvsee:
+    description: View another player's inventory
+    usage: /weinvsee <player>
+    permission: wardenessentials.invsee
+  wesmite:
+    description: Strike a player with lighting
+    usage: /wesmite <player>
+    permission: wardenessentials.smite
+  weheal:
+    description: Fully heal yourself or another player
+    usage: /weheal [player]
+    permission: wardenessentials.heal
+  wefly:
+    description: Toggle flight for yourself or another player
+    usage: /wefly [player]
+    permission: wardenessentials.fly
+  wetp:
+    description: Teleport to a player
+    usage: /wetp <player>
+    permission: wardenessentials.tp
+  wetphere:
+    description: Teleport a player to you
+    usage: /wetphere <player>
+    permission: wardenessentials.tphere
 permissions:
   wardenessentials.ban:
     description: Allows banning players
@@ -42,4 +78,31 @@ permissions:
     default: op
   wardenessentials.give:
     description: Allow giving items
+    default: op
+  wardenessentials.up:
+    description: Allow use of /weup
+    default: op
+  wardenessentials.effect:
+    description: Allow giving potion effects
+    default: op
+  wardenessentials.stop:
+    description: Allows stopping the server
+    default: op
+  wardenessentials.invsee:
+    description: Allow viewing another player's inventory
+    default: op
+  wardenessentials.smite:
+    description: Allows striking a player with lighting
+    default: op
+  wardenessentials.heal:
+    description: Allows healing yourself or others
+    default: op
+  wardenessentials.fly:
+    description: Allows toggling flight
+    default: op
+  wardenessentials.tp:
+    description: Allows teleporting to another player
+    default: op
+  wardenessentials.tphere:
+    description: Allows teleporting another player to you
     default: op
