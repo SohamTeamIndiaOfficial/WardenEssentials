@@ -1,5 +1,5 @@
 name: WardenEssentials
-version: 1.1.3
+version: 1.1.4
 main: com.svhteam.lifesteal.wardenEssentials.WardenEssentials
 api-version: 1.21
 authors: [ NoFailsXD ]
@@ -63,6 +63,22 @@ commands:
     description: Teleport a player to you
     usage: /wetphere <player>
     permission: wardenessentials.tphere
+  wetime:
+    description: Changes the time of day
+    usage: /wetime <day|night|noon|midnight>
+    permission: wardenessentials.time
+  weweather:
+      description: Changes the weather
+      usage: /weweather <clear|rain|storm>
+      permission: wardenessentials.weather
+  wealert:
+    description: Sends a server-wide alert
+    usage: /wealert <message>
+    permission: wardenessentials.alert
+  wefind:
+      description: Finds a player's coordinates
+      usage: /wefind <player>
+      permission: wardenessentials.find
 permissions:
   wardenessentials.ban:
     description: Allows banning players
@@ -106,3 +122,15 @@ permissions:
   wardenessentials.tphere:
     description: Allows teleporting another player to you
     default: op
+  wardenessentials.time:
+    description: Allows changing the time of day
+    default: op
+  wardenessentials.weather:
+      description: Allows changing the weather
+      default: op
+  wardenessentials.alert:
+    description: Allows sending alerts
+    default: op
+  wardenessentials.find:
+      description: Allows finding player coordinates
+      default: op

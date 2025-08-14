@@ -39,7 +39,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
     }
     private void checkForUpdates() {
         // The URL should point to a raw text file containing the latest version string
-        String updateUrl = "https://example.com/wardenessentials-version.txt";
+        String updateUrl = "https://raw.githubusercontent.com/SohamTeamIndiaOfficial/WardenEssentials/refs/heads/master/version.txt";
 
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             try {
@@ -113,6 +113,10 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                     sender.sendMessage(ChatColor.AQUA + "/weheal" + ChatColor.WHITE + " - Fully heal yourself or another player");
                     sender.sendMessage(ChatColor.AQUA + "/wetp" + ChatColor.WHITE + " - Teleport to a player");
                     sender.sendMessage(ChatColor.AQUA + "/wetphere" + ChatColor.WHITE + " - Teleport a player to you");
+                    sender.sendMessage(ChatColor.AQUA + "/wetime" + ChatColor.WHITE + " - Changes the time of day");
+                    sender.sendMessage(ChatColor.AQUA + "/weweather" + ChatColor.WHITE + " - Changes the weather");
+                    sender.sendMessage(ChatColor.AQUA + "/wealert" + ChatColor.WHITE + " - Sends a server-wide alert");
+                    sender.sendMessage(ChatColor.AQUA + "/wefind" + ChatColor.WHITE + " - Find a player's coordinates");
                     return true;
                 }
                 if (args[0].equalsIgnoreCase("reload")) {
@@ -509,6 +513,113 @@ public class WardenEssentials extends JavaPlugin implements Listener {
             target.sendMessage(ChatColor.GREEN + "You have been teleported to " + pl1.getName() + ".");
             return true;
         }
+
+        // /wetime <day|night|noon|midnight>
+        if (cmd.getName().equalsIgnoreCase("wetime")) {
+            if (!sender.hasPermission("wardenessentials.time")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+            if (args.length != 1) {
+                sender.sendMessage(ChatColor.RED + "Usage: /wetime <day|night|noon|midnight>");
+                return true;
+            }
+
+            long time;
+            switch (args[0].toLowerCase()) {
+                case "day": time = 1000L; break;
+                case "noon": time = 6000L; break;
+                case "night": time = 13000L; break;
+                case "midnight": time = 18000L; break;
+                default:
+                    sender.sendMessage(ChatColor.RED + "Invalid time! Use: day, noon, night, midnight");
+                    return true;
+            }
+
+            Bukkit.getWorlds().forEach(world -> world.setTime(time));
+            sender.sendMessage(ChatColor.GREEN + "Time set to " + args[0] + " in all worlds.");
+            return true;
+        }
+
+// /weweather <clear|rain|storm>
+        if (cmd.getName().equalsIgnoreCase("weweather")) {
+            if (!sender.hasPermission("wardenessentials.weather")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+            if (args.length != 1) {
+                sender.sendMessage(ChatColor.RED + "Usage: /weweather <clear|rain|storm>");
+                return true;
+            }
+
+            switch (args[0].toLowerCase()) {
+                case "clear":
+                    Bukkit.getWorlds().forEach(world -> {
+                        world.setStorm(false);
+                        world.setThundering(false);
+                    });
+                    sender.sendMessage(ChatColor.GREEN + "Weather set to clear in all worlds.");
+                    break;
+                case "rain":
+                    Bukkit.getWorlds().forEach(world -> {
+                        world.setStorm(true);
+                        world.setThundering(false);
+                    });
+                    sender.sendMessage(ChatColor.GREEN + "Weather set to rain in all worlds.");
+                    break;
+                case "storm":
+                    Bukkit.getWorlds().forEach(world -> {
+                        world.setStorm(true);
+                        world.setThundering(true);
+                    });
+                    sender.sendMessage(ChatColor.GREEN + "Weather set to storm in all worlds.");
+                    break;
+                default:
+                    sender.sendMessage(ChatColor.RED + "Invalid weather! Use: clear, rain, storm");
+                    return true;
+            }
+            return true;
+        }
+
+        // /wealert <message>
+        if (cmd.getName().equalsIgnoreCase("wealert")) {
+            if (!sender.hasPermission("wardenessentials.alert")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+            if (args.length == 0) {
+                sender.sendMessage(ChatColor.RED + "Usage: /wealert <message>");
+                return true;
+            }
+
+            String message = ChatColor.translateAlternateColorCodes('&', String.join(" ", args));
+            Bukkit.broadcastMessage(ChatColor.RED + "" + ChatColor.BOLD + "[ALERT] " + ChatColor.RESET + ChatColor.YELLOW + message);
+            return true;
+        }
+
+// /wefind <player>
+        if (cmd.getName().equalsIgnoreCase("wefind")) {
+            if (!sender.hasPermission("wardenessentials.find")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+            if (args.length != 1) {
+                sender.sendMessage(ChatColor.RED + "Usage: /wefind <player>");
+                return true;
+            }
+
+            Player target = Bukkit.getPlayerExact(args[0]);
+            if (target == null) {
+                sender.sendMessage(ChatColor.RED + "Player not found!");
+                return true;
+            }
+
+            Location loc = target.getLocation();
+            sender.sendMessage(ChatColor.GREEN + "Player " + target.getName() + " is at X: " + loc.getBlockX() + " Y: " + loc.getBlockY() + " Z: " + loc.getBlockZ() + " in world " + loc.getWorld().getName());
+            return true;
+        }
+
+
 
 
 
