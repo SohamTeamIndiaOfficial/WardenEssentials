@@ -15,16 +15,21 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Location;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import java.util.*;
 
 public class WardenEssentials extends JavaPlugin implements Listener {
 
@@ -63,6 +68,8 @@ public class WardenEssentials extends JavaPlugin implements Listener {
     }
 
     private final java.util.Set<Player> flyingPlayers = new java.util.HashSet<>();
+    private boolean hideJoinLeave = false;
+    private final Set<Player> hiddenNameTags = new HashSet<>();
 
     @Override
     public void onDisable() {
@@ -77,6 +84,15 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                 config.getString("messages.join-welcome", "&aWelcome back to server!")));
         player.sendMessage(ChatColor.translateAlternateColorCodes('&',
                 config.getString("messages.join-help", "&eUse '/wessentials help' to see cmds.")));
+        if (hideJoinLeave) {
+            event.setJoinMessage(null);
+        }
+    }
+
+    public void onPlayerQuit (PlayerQuitEvent event) {
+        if (hideJoinLeave) {
+            event.setQuitMessage(null);
+        }
     }
 
     @EventHandler
@@ -117,6 +133,8 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                     sender.sendMessage(ChatColor.AQUA + "/weweather" + ChatColor.WHITE + " - Changes the weather");
                     sender.sendMessage(ChatColor.AQUA + "/wealert" + ChatColor.WHITE + " - Sends a server-wide alert");
                     sender.sendMessage(ChatColor.AQUA + "/wefind" + ChatColor.WHITE + " - Find a player's coordinates");
+                    sender.sendMessage(ChatColor.AQUA + "/hidemynametag" + ChatColor.WHITE + " - Toggle your nametag visibility");
+                    sender.sendMessage(ChatColor.AQUA + "/hideleaveandjoin" + ChatColor.WHITE + " - Toggle join/leave messages globally");
                     return true;
                 }
                 if (args[0].equalsIgnoreCase("reload")) {
@@ -619,12 +637,55 @@ public class WardenEssentials extends JavaPlugin implements Listener {
             return true;
         }
 
+        if (cmd.getName().equalsIgnoreCase("hidemynametag")) {
+            if (!sender.hasPermission("wardenessentials.hidemynametag")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+                return true;
+            }
+            Player pl = (Player) sender;
+            Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
+            Team team = board.getTeam("hiddenNameTags");
 
+            if (team == null) {
+                team = board.registerNewTeam("hiddenNameTags");
+                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+            }
 
+            if (hiddenNameTags.contains(player)) {
+                hiddenNameTags.remove(player);
+                team.removeEntry(player.getName());
+                player.sendMessage(ChatColor.GREEN + "Your nametag is now visible.");
+            } else {
+                hiddenNameTags.add(player);
+                team.addEntry(player.getName());
+                player.sendMessage(ChatColor.RED + "Your nametag is now hidden.");
+            }
+            return true;
+        }
 
+        // /hideleaveandjoin
+        if (cmd.getName().equalsIgnoreCase("hideleaveandjoin")) {
+            if (!sender.hasPermission("wardenessentials.hideleave")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+            hideJoinLeave = !hideJoinLeave;
+            Bukkit.broadcastMessage(ChatColor.YELLOW + "Join/Leave messages are now " +
+                    (hideJoinLeave ? ChatColor.RED + "HIDDEN" : ChatColor.GREEN + "VISIBLE"));
+            return true;
+        }
+
+        // --- Rest of your commands (ban, heal, fly, etc.) stay the same ---
 
         return false;
     }
+
+
+
 
     private ItemStack createWardenBlade() {
         ItemStack blade = new ItemStack(Material.DIAMOND_SWORD);

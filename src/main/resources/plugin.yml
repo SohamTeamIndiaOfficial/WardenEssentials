@@ -1,5 +1,5 @@
 name: WardenEssentials
-version: 1.1.4
+version: 1.1.5
 main: com.svhteam.lifesteal.wardenEssentials.WardenEssentials
 api-version: 1.21
 authors: [ NoFailsXD ]
@@ -35,6 +35,14 @@ commands:
     description: Gives a player a potion effect
     usage: /weeffect <player> <effect> <duration_seconds> <amplifier>
     permission: wardenessentials.effect
+  hidemynametag:
+    description: Toggle your nametag visibility.
+    usage: /<command>
+    permission: wardenessentials.hidemynametag
+  hideleaveandjoin:
+    description: Toggle join/leave messages globally.
+    usage: /<command>
+    permission: wardenessentials.hideleave
   westop:
     description: Stops the server
     usage: /westop
@@ -134,3 +142,10 @@ permissions:
   wardenessentials.find:
       description: Allows finding player coordinates
       default: op
+  wardenessentials.hidemynametag:
+    description: Allows hiding your nametag
+    default: op
+
+  wardenessentials.hideleave:
+    description: Allows toggling join/leave messages globally
+    default: op
