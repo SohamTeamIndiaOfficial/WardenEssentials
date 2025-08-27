@@ -1,12 +1,9 @@
 package com.svhteam.lifesteal.wardenEssentials;
 
-import org.bukkit.BanList;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -20,7 +17,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.Location;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -135,6 +131,10 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                     sender.sendMessage(ChatColor.AQUA + "/wefind" + ChatColor.WHITE + " - Find a player's coordinates");
                     sender.sendMessage(ChatColor.AQUA + "/hidemynametag" + ChatColor.WHITE + " - Toggle your nametag visibility");
                     sender.sendMessage(ChatColor.AQUA + "/hideleaveandjoin" + ChatColor.WHITE + " - Toggle join/leave messages globally");
+                    sender.sendMessage(ChatColor.AQUA + "/wefeed" + ChatColor.WHITE + " - Feed Yourself");
+                    sender.sendMessage(ChatColor.AQUA + "/wehome" + ChatColor.WHITE + " - Teleport To Your Home");
+                    sender.sendMessage(ChatColor.AQUA + "/wesethome" + ChatColor.WHITE + " - Set your home");
+                    sender.sendMessage(ChatColor.AQUA + "/wegm" + ChatColor.WHITE + " - Change gamemode");
                     return true;
                 }
                 if (args[0].equalsIgnoreCase("reload")) {
@@ -678,6 +678,113 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                     (hideJoinLeave ? ChatColor.RED + "HIDDEN" : ChatColor.GREEN + "VISIBLE"));
             return true;
         }
+
+        if (cmd.getName().equalsIgnoreCase("wefeed")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+                return true;
+            }
+            Player p = (Player) sender;
+            if (!p.hasPermission("wardenessentials.feed")) {
+                p.sendMessage(ChatColor.RED + "You do not have permission!");
+                return true;
+            }
+            p.setFoodLevel(20);
+            p.setSaturation(20);
+            p.sendMessage(ChatColor.GREEN + "You have been fed!");
+            return true;
+        }
+
+        if (cmd.getName().equalsIgnoreCase("wesethome")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+                return true;
+            }
+            Player p = (Player) sender;
+            if (!p.hasPermission("wardenessentials.sethome")) {
+                p.sendMessage(ChatColor.RED + "You do not have permission!");
+                return true;
+            }
+
+            getConfig().set("homes." + p.getUniqueId(), p.getLocation());
+            saveConfig();
+
+            p.sendMessage(ChatColor.GREEN + "Home set!");
+            return true;
+        }
+
+        if (cmd.getName().equalsIgnoreCase("wehome")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+                return true;
+            }
+            Player p = (Player) sender;
+            if (!p.hasPermission("wardenessentials.home")) {
+                p.sendMessage(ChatColor.RED + "You do not have permission!");
+                return true;
+            }
+
+            if (getConfig().contains("homes." + p.getUniqueId())) {
+                Location home = (Location) getConfig().get("homes." + p.getUniqueId());
+                p.teleport(home);
+                p.sendMessage(ChatColor.GREEN + "Teleported to home!");
+            } else {
+                p.sendMessage(ChatColor.RED + "You don’t have a home set. Use /wesethome first.");
+            }
+            return true;
+        }
+
+        if (cmd.getName().equalsIgnoreCase("wegm")) {
+            if (!sender.hasPermission("wardenessentials.gamemode")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission!");
+                return true;
+            }
+            if (args.length < 1) {
+                sender.sendMessage(ChatColor.RED + "Usage: /wegm <survival|creative|adventure|spectator> [player]");
+                return true;
+            }
+
+            GameMode mode;
+            switch (args[0].toLowerCase()) {
+                case "s":
+                case "survival": mode = GameMode.SURVIVAL; break;
+                case "c":
+                case "creative": mode = GameMode.CREATIVE; break;
+                case "a":
+                case "adventure": mode = GameMode.ADVENTURE; break;
+                case "sp":
+                case "spectator": mode = GameMode.SPECTATOR; break;
+                default:
+                    sender.sendMessage(ChatColor.RED + "Invalid gamemode!");
+                    return true;
+            }
+
+            Player target;
+            if (args.length == 2) {
+                target = Bukkit.getPlayer(args[1]);
+                if (target == null) {
+                    sender.sendMessage(ChatColor.RED + "Player not found!");
+                    return true;
+                }
+            } else {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(ChatColor.RED + "Console must specify a player!");
+                    return true;
+                }
+                target = (Player) sender;
+            }
+
+            target.setGameMode(mode);
+            target.sendMessage(ChatColor.GREEN + "Your gamemode has been set to " + mode.name());
+            if (!target.equals(sender)) {
+                sender.sendMessage(ChatColor.GREEN + "Set " + target.getName() + " gamemode to " + mode.name());
+            }
+            return true;
+        }
+
+
+
+
 
         // --- Rest of your commands (ban, heal, fly, etc.) stay the same ---
 

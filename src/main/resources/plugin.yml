@@ -87,6 +87,22 @@ commands:
       description: Finds a player's coordinates
       usage: /wefind <player>
       permission: wardenessentials.find
+  wefeed:
+    description: Feed yourself
+    usage: /wefeed
+    permission: wardenessentials.feed
+  wehome:
+      description: Teleport to your home
+      usage: /wehome
+      permission: wardenessentials.home
+  wesethome:
+      description: Set your home
+      usage: /wesethome
+      permission: wardenessentials.sethome
+  wegm:
+      description: Change gamemode
+      usage: /wegm <mode> [player]
+      permission: wardenessentials.gamemode
 permissions:
   wardenessentials.ban:
     description: Allows banning players
@@ -149,3 +165,15 @@ permissions:
   wardenessentials.hideleave:
     description: Allows toggling join/leave messages globally
     default: op
+  wardenessentials.feed:
+    description: Allows player to use /wefeed
+    default: op
+  wardenessentials.home:
+      description: Allows player to use /wehome
+      default: true
+  wardenessentials.sethome:
+      description: Allows player to use /wesethome
+      default: true
+  wardenessentials.gamemode:
+      description: Allows player to change gamemode
+      default: op
