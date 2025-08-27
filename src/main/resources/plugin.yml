@@ -1,5 +1,5 @@
 name: WardenEssentials
-version: 1.1.5
+version: 1.1.6
 main: com.svhteam.lifesteal.wardenEssentials.WardenEssentials
 api-version: 1.21
 authors: [ NoFailsXD ]
