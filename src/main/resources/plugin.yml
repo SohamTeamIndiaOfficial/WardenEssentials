@@ -103,6 +103,10 @@ commands:
       description: Change gamemode
       usage: /wegm <mode> [player]
       permission: wardenessentials.gamemode
+  wesudo:
+      description: Force a player to run a command or chat message
+      usage: /wesudo <player> <command/message>
+      permission: wardenessentials.sudo
 permissions:
   wardenessentials.ban:
     description: Allows banning players
@@ -177,3 +181,6 @@ permissions:
   wardenessentials.gamemode:
       description: Allows player to change gamemode
       default: op
+  wardenessentials.sudo:
+    description: Allows forcing players to run commands or chat
+    default: op

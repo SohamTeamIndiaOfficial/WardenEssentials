@@ -782,6 +782,40 @@ public class WardenEssentials extends JavaPlugin implements Listener {
             return true;
         }
 
+        if (cmd.getName().equalsIgnoreCase("wesudo")) {
+            if (!sender.hasPermission("wardenessentials.sudo")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+
+            if (args.length < 2) {
+                sender.sendMessage(ChatColor.RED + "Usage: /wesudo <player> <command/message>");
+                return true;
+            }
+
+            Player target = Bukkit.getPlayerExact(args[0]);
+            if (target == null) {
+                sender.sendMessage(ChatColor.RED + "Player not found!");
+                return true;
+            }
+
+            String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+
+            if (message.startsWith("/")) {
+                // Force them to run a command
+                String cmdToRun = message.substring(1);
+                target.performCommand(cmdToRun);
+                sender.sendMessage(ChatColor.GREEN + "Forced " + target.getName() + " to run command: " + message);
+            } else {
+                // Force them to send chat
+                target.chat(message);
+                sender.sendMessage(ChatColor.GREEN + "Forced " + target.getName() + " to say: " + message);
+            }
+
+            return true;
+        }
+
+
 
 
 
