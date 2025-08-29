@@ -135,6 +135,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                     sender.sendMessage(ChatColor.AQUA + "/wehome" + ChatColor.WHITE + " - Teleport To Your Home");
                     sender.sendMessage(ChatColor.AQUA + "/wesethome" + ChatColor.WHITE + " - Set your home");
                     sender.sendMessage(ChatColor.AQUA + "/wegm" + ChatColor.WHITE + " - Change gamemode");
+                    sender.sendMessage(ChatColor.AQUA + "/wesudo" + ChatColor.WHITE + " - Force a player to run a command or chat message");
                     return true;
                 }
                 if (args[0].equalsIgnoreCase("reload")) {
