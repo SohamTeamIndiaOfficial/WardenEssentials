@@ -40,7 +40,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
     }
     private void checkForUpdates() {
         // The URL should point to a raw text file containing the latest version string
-        String updateUrl = "https://raw.githubusercontent.com/SohamTeamIndiaOfficial/WardenEssentials/refs/heads/m  aster/version.txt";
+        String updateUrl = "https://raw.githubusercontent.com/SohamTeamIndiaOfficial/WardenEssentials/refs/heads/master/version.txt";
 
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             try {
