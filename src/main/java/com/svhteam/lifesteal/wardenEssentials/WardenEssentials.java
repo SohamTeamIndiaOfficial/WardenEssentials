@@ -40,7 +40,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
     }
     private void checkForUpdates() {
         // The URL should point to a raw text file containing the latest version string
-        String updateUrl = "https://raw.githubusercontent.com/SohamTeamIndiaOfficial/WardenEssentials/refs/heads/master/version.txt";
+        String updateUrl = "https://raw.githubusercontent.com/SohamTeamIndiaOfficial/WardenEssentials/refs/heads/m  aster/version.txt";
 
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             try {
@@ -81,15 +81,25 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                 config.getString("messages.join-welcome", "&aWelcome back to server!")));
         player.sendMessage(ChatColor.translateAlternateColorCodes('&',
                 config.getString("messages.join-help", "&eUse '/wessentials help' to see cmds.")));
+        if (config.getBoolean("messages.vanish-hide-joinquit", true)
+            && vanishedPlayers.contains(player.getUniqueId())) {
+            event.setJoinMessage(null);
+        }
         if (hideJoinLeave) {
             event.setJoinMessage(null);
         }
     }
 
     public void onPlayerQuit (PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        FileConfiguration config = getConfig();
         if (hideJoinLeave) {
             event.setQuitMessage(null);
         }
+        if (config.getBoolean("messages.vanish-hide-joinquit", true)
+            && vanishedPlayers.contains(player.getUniqueId()))  {
+            event.setQuitMessage(null);
+            }
     }
 
     @EventHandler
@@ -833,7 +843,18 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                 vanishedPlayers.remove(player11.getUniqueId());
                 Bukkit.getOnlinePlayers().forEach(p -> p.showPlayer(this, player11));
 
-                player11.sendMessage(ChatColor.RED + "You are now visible.");
+                String msg = ChatColor.translateAlternateColorCodes('&',
+                        config.getString("messages.vanish-off", "&cYou are now visible!"));
+                player11.sendMessage(msg);
+
+                String broadcast = ChatColor.translateAlternateColorCodes('&',
+                        config.getString("messages.vanish-broadcast-off", "&e%player% is visible again."));
+                Bukkit.getOnlinePlayers().forEach(p -> {
+                    if (p.hasPermission("wardenessentials.vanish.see")) {
+                        p.sendMessage(broadcast.replace("%player%", player11.getName()));
+                    }
+                });
+
             } else {
                 // Vanish
                 vanishedPlayers.add(player11.getUniqueId());
@@ -843,10 +864,21 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                     }
                 });
 
-                player11.sendMessage(ChatColor.GREEN + "You have vanished!");
+                String msg = ChatColor.translateAlternateColorCodes('&',
+                        config.getString("messages.vanish-on", "&aYou have vanished!"));
+                player11.sendMessage(msg);
+
+                String broadcast = ChatColor.translateAlternateColorCodes('&',
+                        config.getString("messages.vanish-broadcast-on", "&e%player% has vanished."));
+                Bukkit.getOnlinePlayers().forEach(p -> {
+                    if (p.hasPermission("wardenessentials.vanish.see")) {
+                        p.sendMessage(broadcast.replace("%player%", player11.getName()));
+                    }
+                });
             }
             return true;
         }
+
 
 
 

@@ -9,3 +9,8 @@ messages:
   broadcast-ban: "&c%player% was banned. Reason: %reason%"
   broadcast-kick: "&c%player% was kicked. Reason: %reason%"
   broadcast-unban: "&a%player% was unbanned by %sender%"
+  vanish-on: "&aYou have vanished!"
+  vanish-off: "&cYou are now visible!"
+  vanish-broadcast-on: "&e%player% has vanished."
+  vanish-broadcast-off: "&e%player% is visible again."
+  vanish-hide-joinquit: true #True by default
