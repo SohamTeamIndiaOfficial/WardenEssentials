@@ -66,6 +66,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
     private final java.util.Set<Player> flyingPlayers = new java.util.HashSet<>();
     private boolean hideJoinLeave = false;
     private final Set<Player> hiddenNameTags = new HashSet<>();
+    private final Set<UUID> vanishedPlayers = new HashSet<>();
 
     @Override
     public void onDisable() {
@@ -136,6 +137,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                     sender.sendMessage(ChatColor.AQUA + "/wesethome" + ChatColor.WHITE + " - Set your home");
                     sender.sendMessage(ChatColor.AQUA + "/wegm" + ChatColor.WHITE + " - Change gamemode");
                     sender.sendMessage(ChatColor.AQUA + "/wesudo" + ChatColor.WHITE + " - Force a player to run a command or chat message");
+                    sender.sendMessage(ChatColor.AQUA + "/wevanish" + ChatColor.WHITE + " - Toggles vanish mode");
                     return true;
                 }
                 if (args[0].equalsIgnoreCase("reload")) {
@@ -815,6 +817,37 @@ public class WardenEssentials extends JavaPlugin implements Listener {
 
             return true;
         }
+
+        if (cmd.getName().equalsIgnoreCase("wevanish")) {
+            if (!(sender instanceof Player player11)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+                return true;
+            }
+            if (!sender.hasPermission("wardenessentials.vanish")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+
+            if (vanishedPlayers.contains(player11.getUniqueId())) {
+                // Unvanish
+                vanishedPlayers.remove(player11.getUniqueId());
+                Bukkit.getOnlinePlayers().forEach(p -> p.showPlayer(this, player11));
+
+                player11.sendMessage(ChatColor.RED + "You are now visible.");
+            } else {
+                // Vanish
+                vanishedPlayers.add(player11.getUniqueId());
+                Bukkit.getOnlinePlayers().forEach(p -> {
+                    if (!p.hasPermission("wardenessentials.vanish.see")) {
+                        p.hidePlayer(this, player11);
+                    }
+                });
+
+                player11.sendMessage(ChatColor.GREEN + "You have vanished!");
+            }
+            return true;
+        }
+
 
 
 
