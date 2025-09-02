@@ -1,8 +1,10 @@
 name: WardenEssentials
-version: 1.1.7
+version: 1.1.8
 main: com.svhteam.lifesteal.wardenEssentials.WardenEssentials
 api-version: 1.21
 authors: [ NoFailsXD ]
+depend:
+  - WardenLib
 commands:
   wessentials:
     description: WardenEssentials main command
@@ -111,6 +113,10 @@ commands:
     description: Toggle vanish mode
     usage: /wevanish
     permission: wardenessentials.vanish
+  wescoreboard:
+    description: Toggle the scoreboard on/off
+    usage: /wescoreboard
+    permission: wardenessentials.scoreboard
 permissions:
   wardenessentials.ban:
     description: Allows banning players
@@ -192,4 +198,7 @@ permissions:
     default: op
   wardenessentials.vanish.see:
     description: Allows the player to see vanished players
+    default: op
+  wardenessentials.scoreboard:
+    description: Allows the player to toggle scoreboard
     default: op

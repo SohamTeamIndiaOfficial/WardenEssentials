@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.svhteam.lifesteal'
-version = '1.1.7'
+version = '1.1.8'
 
 repositories {
     mavenCentral()
@@ -16,6 +16,8 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
+    implementation files('libs/WardenLib-1.0.0.jar')
+
 }
 
 tasks {

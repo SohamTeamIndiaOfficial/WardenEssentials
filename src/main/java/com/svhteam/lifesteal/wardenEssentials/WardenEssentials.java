@@ -3,11 +3,11 @@ package com.svhteam.lifesteal.wardenEssentials;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Warden;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.scoreboard.Scoreboard;
@@ -26,8 +27,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import java.util.*;
+import java.util.UUID;
 
 public class WardenEssentials extends JavaPlugin implements Listener {
+
 
     @Override
     public void onEnable() {
@@ -38,6 +41,8 @@ public class WardenEssentials extends JavaPlugin implements Listener {
         checkForUpdates();
 
     }
+
+
     private void checkForUpdates() {
         // The URL should point to a raw text file containing the latest version string
         String updateUrl = "https://raw.githubusercontent.com/SohamTeamIndiaOfficial/WardenEssentials/refs/heads/master/version.txt";
@@ -878,6 +883,28 @@ public class WardenEssentials extends JavaPlugin implements Listener {
             }
             return true;
         }
+
+        if (cmd.getName().equalsIgnoreCase("wescoreboard")) {
+            if (!(sender instanceof Player player1)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+                return true;
+            }
+            if (!player1.hasPermission("wardenessentials.scoreboard")) {
+                player1.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                return true;
+            }
+
+            if (com.svteam.wardenlib.ScoreboardAPI.hasScoreboard(player1)) {
+                com.svteam.wardenlib.ScoreboardAPI.disableScoreboard(player1);
+                player1.sendMessage(ChatColor.YELLOW + "Your scoreboard has been disabled.");
+            } else {
+                com.svteam.wardenlib.ScoreboardAPI.enableScoreboard(player1);
+                player1.sendMessage(ChatColor.GREEN + "Your scoreboard has been enabled.");
+            }
+            return true;
+        }
+
+
 
 
 
