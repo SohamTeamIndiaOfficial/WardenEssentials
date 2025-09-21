@@ -1,5 +1,6 @@
 package com.svhteam.lifesteal.wardenEssentials;
 
+// Imports
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
@@ -13,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,6 +23,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.configuration.file.YamlConfiguration;
+import java.io.File;
+import java.io.IOException;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +36,7 @@ import java.util.List;
 import java.util.*;
 import java.util.UUID;
 
+// Main Start
 public class WardenEssentials extends JavaPlugin implements Listener {
 
 
@@ -39,10 +47,11 @@ public class WardenEssentials extends JavaPlugin implements Listener {
         getLogger().info("WardenEssentials has been enabled! Author is NoFailsXD!");
 
         checkForUpdates();
+        loadVaults();
 
     }
 
-
+    // Check For Updates
     private void checkForUpdates() {
         // The URL should point to a raw text file containing the latest version string
         String updateUrl = "https://raw.githubusercontent.com/SohamTeamIndiaOfficial/WardenEssentials/refs/heads/master/version.txt";
@@ -68,14 +77,19 @@ public class WardenEssentials extends JavaPlugin implements Listener {
         });
     }
 
+    // Privates
     private final java.util.Set<Player> flyingPlayers = new java.util.HashSet<>();
     private boolean hideJoinLeave = false;
     private final Set<Player> hiddenNameTags = new HashSet<>();
     private final Set<UUID> vanishedPlayers = new HashSet<>();
+    private File vaultFile;
+    private YamlConfiguration vaultConfig;
+    private final Map<UUID, Inventory> openVaults = new HashMap<>();
+
 
     @Override
     public void onDisable() {
-        getLogger().info("WardenEssentials has been disabled!");
+        getLogger().info("WardenEssentials has been disabled!"); saveVaults();
     }
 
     @EventHandler
@@ -118,6 +132,64 @@ public class WardenEssentials extends JavaPlugin implements Listener {
         }
     }
 
+    // Vaults Load And Save
+    private void loadVaults() {
+        vaultFile = new File(getDataFolder(), "vaults.yml");
+        if (!vaultFile.exists()) {
+            try {
+                vaultFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        vaultConfig = YamlConfiguration.loadConfiguration(vaultFile);
+    }
+
+    private void saveVaults() {
+        try {
+            vaultConfig.save(vaultFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Inventory getVault(UUID uuid) {
+        if (openVaults.containsKey(uuid)) {
+            return openVaults.get(uuid);
+        }
+
+        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.DARK_AQUA + "Vault");
+
+        if (vaultConfig.contains("vaults." + uuid)) {
+            List<?> list = vaultConfig.getList("vaults." + uuid);
+            if (list != null) {
+                ItemStack[] items = list.toArray(new ItemStack[0]);
+                inv.setContents(items);
+            }
+        }
+
+        openVaults.put(uuid, inv);
+        return inv;
+    }
+
+    private void saveVault(UUID uuid) {
+        Inventory inv = openVaults.get(uuid);
+        if (inv != null) {
+            vaultConfig.set("vaults." + uuid, Arrays.asList(inv.getContents()));
+            saveVaults();
+        }
+    }
+
+    @EventHandler
+    public void onVaultClose(InventoryCloseEvent event) {
+        if (event.getView().getTitle().equals(ChatColor.DARK_AQUA + "Vault")) {
+            Player player = (Player) event.getPlayer();
+            saveVault(player.getUniqueId());
+        }
+    }
+
+
+    // Main CMDS START
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         FileConfiguration config = getConfig();
@@ -904,10 +976,36 @@ public class WardenEssentials extends JavaPlugin implements Listener {
             return true;
         }
 
+        if (cmd.getName().equalsIgnoreCase("wevault")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+                return true;
+            }
 
+            Player p = (Player) sender;
 
+            if (!p.hasPermission("wardenessentials.vault")) {
+                p.sendMessage(ChatColor.RED + "You do not have permission!");
+                return true;
+            }
 
-
+            if (args.length == 0) {
+                // open own vault
+                p.openInventory(getVault(p.getUniqueId()));
+                p.sendMessage(ChatColor.GREEN + "Opened your vault!");
+            } else if (args.length == 1 && p.hasPermission("wardenessentials.vault.others")) {
+                Player target = Bukkit.getPlayerExact(args[0]);
+                if (target == null) {
+                    p.sendMessage(ChatColor.RED + "Player not found!");
+                    return true;
+                }
+                p.openInventory(getVault(target.getUniqueId()));
+                p.sendMessage(ChatColor.YELLOW + "Opened " + target.getName() + "'s vault!");
+            } else {
+                p.sendMessage(ChatColor.RED + "Usage: /wevault [player]");
+            }
+            return true;
+        }
 
 
 

@@ -1,5 +1,5 @@
 name: WardenEssentials
-version: 1.1.8
+version: 1.1.9
 main: com.svhteam.lifesteal.wardenEssentials.WardenEssentials
 api-version: 1.21
 authors: [ NoFailsXD ]
@@ -117,6 +117,10 @@ commands:
     description: Toggle the scoreboard on/off
     usage: /wescoreboard
     permission: wardenessentials.scoreboard
+  wevault:
+    description: Opens your private vault
+    usage: /wevault [player]
+    permission: wardenessentials.vault
 permissions:
   wardenessentials.ban:
     description: Allows banning players
@@ -201,4 +205,10 @@ permissions:
     default: op
   wardenessentials.scoreboard:
     description: Allows the player to toggle scoreboard
+    default: op
+  wardenessentials.vault:
+    description: Allows use of /wevault
+    default: true
+  wardenessentials.vault.others:
+    description: Allows opening others' vaults
     default: op
