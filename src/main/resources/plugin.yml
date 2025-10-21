@@ -1,10 +1,12 @@
 name: WardenEssentials
-version: 1.2.0
+version: 1.2.3
 main: com.svhteam.lifesteal.wardenEssentials.WardenEssentials
 api-version: 1.21
 authors: [ NoFailsXD ]
 depend:
   - WardenLib
+softdepend:
+  - Vault
 commands:
   wessentials:
     description: WardenEssentials main command
@@ -121,6 +123,18 @@ commands:
     description: Opens your private vault
     usage: /wevault [player]
     permission: wardenessentials.vault
+  webalance:
+    description: Check your balance.
+    usage: /webalance
+    permission: wardenessentials.balance
+  wepay:
+    description: Pay another player.
+    usage: /wepay <player> <amount>
+    permission: wardenessentials.pay
+  wetpall:
+    description: Teleport all players to a specific player.
+    usage: /wetpall <player>
+    permission: wardenessentials.tpall
 permissions:
   wardenessentials.ban:
     description: Allows banning players
@@ -211,4 +225,11 @@ permissions:
     default: true
   wardenessentials.vault.others:
     description: Allows opening others' vaults
+    default: op
+  wardenessentials.balance:
+    default: true
+  wardenessentials.pay:
+    default: true
+  wardenessentials.tpall:
+    description: Allows teleporting all players to a target player.
     default: op
