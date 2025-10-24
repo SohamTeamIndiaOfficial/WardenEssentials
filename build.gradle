@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.svhteam.lifesteal'
-version = '1.2.3'
+version = '1.2.4'
 
 repositories {
     mavenCentral()
@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
-    implementation files('libs/WardenLib-1.3.jar')
+    implementation files('libs/WardenLib-1.4.jar')
     compileOnly('com.github.MilkBowl:VaultAPI:1.7') {
         exclude group: 'org.bukkit'
         exclude group: 'org.spigotmc'

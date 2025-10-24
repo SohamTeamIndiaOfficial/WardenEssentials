@@ -1,5 +1,5 @@
 name: WardenEssentials
-version: 1.2.3
+version: 1.2.4
 main: com.svhteam.lifesteal.wardenEssentials.WardenEssentials
 api-version: 1.21
 authors: [ NoFailsXD ]
@@ -135,6 +135,11 @@ commands:
     description: Teleport all players to a specific player.
     usage: /wetpall <player>
     permission: wardenessentials.tpall
+  wetphereall:
+     description: Teleport all players to yourself.
+     usage: /wetphereall
+     permission: wardenessentials.tphereall
+
 permissions:
   wardenessentials.ban:
     description: Allows banning players
@@ -231,5 +236,7 @@ permissions:
   wardenessentials.pay:
     default: true
   wardenessentials.tpall:
-    description: Allows teleporting all players to a target player.
+    description: Allow tping all players to one
     default: op
+  wardenessentials.tphereall:
+    description: Allow tping all players to the playe who executed
