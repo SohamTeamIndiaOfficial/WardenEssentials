@@ -14,11 +14,14 @@ messages:
   vanish-broadcast-on: "&e%player% has vanished."
   vanish-broadcast-off: "&e%player% is visible again."
   vanish-hide-joinquit: true #True by default
+  banip-broadcast: "&cIP %ip% has been banned by %player%!"
+  unbanip-broadcast: "&eIP %ip% has been unbanned by %player%."
+  banip-reason-default: "&cBanned by an operator."
 
 # BOSSBAR CONFIGURATION
 bossbar:
   # Bossbar should be enabled?
-  enabled: true
+  enabled: false
   # What title should be on bossbar?
   title: "&bWelcome to the Warden Server!"
   # What color will be the bossbar?

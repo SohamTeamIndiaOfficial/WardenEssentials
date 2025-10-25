@@ -1,6 +1,8 @@
 package com.svhteam.lifesteal.wardenEssentials;
 
 // Imports
+import com.svteam.wardenlib.BossBarHandler;
+import com.svteam.wardenlib.ScoreboardAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
@@ -25,15 +27,21 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import org.bukkit.permissions.Permissible;
 
 
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,10 +67,10 @@ public class WardenEssentials extends JavaPlugin implements Listener {
 
         FileConfiguration config = getConfig();
         if (config.getBoolean("bossbar.enabled", false)) {
-            String title = ChatColor.translateAlternateColorCodes('&', config.getString("bossbar.title", "&bWelcome!"));
+            String title = ChatColor.translateAlternateColorCodes('§', config.getString("bossbar.title", "§bWelcome!"));
             String color = config.getString("bossbar.color", "PURPLE");
             float progress = (float) config.getDouble("bossbar.progress", 1.0);
-            com.svteam.wardenlib.BossBarHandler.init(title, color, progress);
+            BossBarHandler.init(title, color, progress);
         }
 
     }
@@ -74,8 +82,8 @@ public class WardenEssentials extends JavaPlugin implements Listener {
 
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             try {
-                java.net.URL url = new java.net.URL(updateUrl);
-                java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(url.openStream()));
+                URL url = new URL(updateUrl);
+                BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                 String latestVersion = in.readLine().trim();
                 in.close();
 
@@ -94,7 +102,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
     }
 
     // Privates
-    private final java.util.Set<Player> flyingPlayers = new java.util.HashSet<>();
+    private final Set<Player> flyingPlayers = new HashSet<>();
     private boolean hideJoinLeave = false;
     private final Set<Player> hiddenNameTags = new HashSet<>();
     private final Set<UUID> vanishedPlayers = new HashSet<>();
@@ -106,15 +114,15 @@ public class WardenEssentials extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         getLogger().info("WardenEssentials has been disabled!"); saveVaults();
-        com.svteam.wardenlib.BossBarHandler.remove();
+        BossBarHandler.remove();
     }
 
     @EventHandler
     public void onPlayerJoin(@NotNull PlayerJoinEvent event) {
         FileConfiguration config = getConfig();
         Player player = event.getPlayer();
-        player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                config.getString("messages.join-welcome", "&aWelcome back to server!")));
+        player.sendMessage(ChatColor.translateAlternateColorCodes('§',
+                config.getString("messages.join-welcome", "§aWelcome back to server!")));
         player.sendMessage(ChatColor.translateAlternateColorCodes('&',
                 config.getString("messages.join-help", "&eUse '/wessentials help' to see cmds.")));
         if (config.getBoolean("messages.vanish-hide-joinquit", true)
@@ -205,7 +213,6 @@ public class WardenEssentials extends JavaPlugin implements Listener {
         }
     }
 
-
     // Main CMDS START
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -247,17 +254,23 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                     sender.sendMessage(ChatColor.AQUA + "/webalance" + ChatColor.WHITE + " - Check your balance");
                     sender.sendMessage(ChatColor.AQUA + "/wetpall" + ChatColor.WHITE + " - Tp all players to the player you selected");
                     sender.sendMessage(ChatColor.AQUA + "/wetphereall" + ChatColor.WHITE + " - Tp all players to you");
+                    sender.sendMessage(ChatColor.AQUA + "/webanip" + ChatColor.WHITE + " - Ban someone's IP " + ChatColor.RED + "(This will ban them permanently)");
+                    sender.sendMessage(ChatColor.AQUA + "/weunbanip" + ChatColor.WHITE + " - Unban someone's IP");
                     return true;
                 }
                 if (args[0].equalsIgnoreCase("reload")) {
                     reloadConfig();
-                    com.svteam.wardenlib.BossBarHandler.remove();
+                    BossBarHandler.remove();
+                    if (!sender.hasPermission("wardenessentials.reload")) {
+                        sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+                        return true;
+                    }
 
                     if (getConfig().getBoolean("bossbar.enabled", false)) {
                         String title = ChatColor.translateAlternateColorCodes('&', getConfig().getString("bossbar.title", "&bWelcome!"));
                         String color = getConfig().getString("bossbar.color", "PURPLE");
                         float progress = (float) getConfig().getDouble("bossbar.progress", 1.0);
-                        com.svteam.wardenlib.BossBarHandler.init(title, color, progress);
+                        BossBarHandler.init(title, color, progress);
                     }
 
                     sender.sendMessage(Component.text("WardenEssentials reloaded.", NamedTextColor.GREEN));
@@ -335,7 +348,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
 
             target.setHealth(0.0);
             sender.sendMessage(ChatColor.GREEN + "You have killed " + target.getName() + ".");
-            target.sendMessage(ChatColor.DARK_RED + "You were killed by" + sender.getName() + ".");
+            target.sendMessage(ChatColor.DARK_RED + "You were killed by " + sender.getName() + ".");
             return true;
         }
 
@@ -446,7 +459,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
             }
 
             try {
-                org.bukkit.potion.PotionEffectType effectType = org.bukkit.potion.PotionEffectType.getByName(args[1].toUpperCase());
+                PotionEffectType effectType = PotionEffectType.getByName(args[1].toUpperCase());
                 if  (effectType == null) {
                     sender.sendMessage(ChatColor.RED + "Invalid effect: " + args[1]);
                     return true;
@@ -455,7 +468,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                 int duration =  Integer.parseInt(args[2]) * 20;
                 int amplifier = Integer.parseInt(args[3]) - 1;
 
-                target.addPotionEffect(new org.bukkit.potion.PotionEffect(effectType, duration, amplifier));
+                target.addPotionEffect(new PotionEffect(effectType, duration, amplifier));
 
                 sender.sendMessage(ChatColor.GREEN + "Gave " + target.getName() + " effect " + effectType.getName()+ " for " + args[2] + " seconds (level " + args[3] + ")!");
                 target.sendMessage(ChatColor.GOLD + "You were given " + effectType.getName() + " for " + args[2] + " seconds (level " + args[3] + ")!");
@@ -775,15 +788,15 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                 team = board.registerNewTeam("hiddenNameTags");
                 team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
             }
-
-            if (hiddenNameTags.contains(player)) {
-                hiddenNameTags.remove(player);
-                team.removeEntry(player.getName());
-                player.sendMessage(ChatColor.GREEN + "Your nametag is now visible.");
+            Player Player =  (Player) sender;
+            if (hiddenNameTags.contains(Player)) {
+                hiddenNameTags.remove(Player);
+                team.removeEntry(Player.getName());
+                Player.sendMessage(ChatColor.GREEN + "Your nametag is now visible.");
             } else {
-                hiddenNameTags.add(player);
-                team.addEntry(player.getName());
-                player.sendMessage(ChatColor.RED + "Your nametag is now hidden.");
+                hiddenNameTags.add(Player);
+                team.addEntry(Player.getName());
+                Player.sendMessage(ChatColor.RED + "Your nametag is now hidden.");
             }
             return true;
         }
@@ -796,7 +809,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
             }
             hideJoinLeave = !hideJoinLeave;
             Bukkit.broadcastMessage(ChatColor.YELLOW + "Join/Leave messages are now " +
-                    (hideJoinLeave ? ChatColor.RED + "HIDDEN" : ChatColor.GREEN + "VISIBLE"));
+                    (hideJoinLeave ? ChatColor.DARK_AQUA + "HIDDEN" : ChatColor.GREEN + "VISIBLE"));
             return true;
         }
 
@@ -997,11 +1010,11 @@ public class WardenEssentials extends JavaPlugin implements Listener {
                 return true;
             }
 
-            if (com.svteam.wardenlib.ScoreboardAPI.hasScoreboard(player1)) {
-                com.svteam.wardenlib.ScoreboardAPI.disableScoreboard(player1);
+            if (ScoreboardAPI.hasScoreboard(player1)) {
+                ScoreboardAPI.disableScoreboard(player1);
                 player1.sendMessage(ChatColor.YELLOW + "Your scoreboard has been disabled.");
             } else {
-                com.svteam.wardenlib.ScoreboardAPI.enableScoreboard(player1);
+                ScoreboardAPI.enableScoreboard(player1);
                 player1.sendMessage(ChatColor.GREEN + "Your scoreboard has been enabled.");
             }
             return true;
@@ -1112,41 +1125,7 @@ public class WardenEssentials extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("wetpall")) {
-            if (!(sender instanceof Player)) {
-                sender.sendMessage(Component.text("Only players can use this command!", NamedTextColor.RED));
-                return true;
-            }
 
-            Player pl2 = (Player) sender;
-
-            if (!pl2.hasPermission("wardenessentials.tpall")) {
-                pl2.sendMessage(Component.text("You do not have permission to use this command.", NamedTextColor.RED));
-                return true;
-            }
-
-            if (args.length != 1) {
-                pl2.sendMessage(Component.text("Usage: /wetpall <player>", NamedTextColor.RED));
-                return true;
-            }
-
-            Player target = Bukkit.getPlayerExact(args[0]);
-            if (target == null) {
-                pl2.sendMessage(Component.text("Player not found.", NamedTextColor.RED));
-                return true;
-            }
-
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (!p.equals(target)) {
-                    p.teleport(target.getLocation());
-                    p.sendMessage(Component.text("You have been teleported to " + target.getName() + ".", NamedTextColor.GREEN));
-                }
-            }
-
-            Bukkit.broadcast(Component.text("⚡ All players were teleported to " + target.getName() + "!", NamedTextColor.GOLD));
-            pl2.sendMessage(Component.text("You teleported all players to " + target.getName() + ".", NamedTextColor.YELLOW));
-            return true;
-        }
 
         // --- /wetpall <player> ---
         if (cmd.getName().equalsIgnoreCase("wetpall")) {
@@ -1212,7 +1191,61 @@ public class WardenEssentials extends JavaPlugin implements Listener {
             return true;
         }
 
+        // /webanip <ip> [reason]
+        if (cmd.getName().equalsIgnoreCase("webanip")) {
+            if (!sender.hasPermission("wardenessentials.banip")) {
+                sender.sendMessage(Component.text("You do not have permission to use this command!", NamedTextColor.RED));
+                return true;
+            }
 
+            if (args.length < 1) {
+                sender.sendMessage(Component.text("Usage: /webanip <ip> [reason]", NamedTextColor.RED));
+                return true;
+            }
+
+            String ip = args[0];
+            String reason = (args.length > 1) ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : "Banned by an operator";
+
+            try {
+                // Ban the IP
+                Bukkit.getBanList(BanList.Type.IP).addBan(ip, reason, null, sender.getName());
+
+                // Kick any online players with that IP
+                for (Player player1 : Bukkit.getOnlinePlayers()) {
+                    if (player1.getAddress() != null && player1.getAddress().getAddress().getHostAddress().equals(ip)) {
+                        player1.kick(Component.text("You have been IP banned: " + reason, NamedTextColor.RED));
+                    }
+                }
+
+                sender.sendMessage(Component.text("IP " + ip + " has been banned for: " + reason, NamedTextColor.GREEN));
+                Bukkit.broadcast(Component.text("🚫 IP " + ip + " has been banned by " + sender.getName() + "!", NamedTextColor.RED));
+            } catch (Exception e) {
+                sender.sendMessage(Component.text("Invalid IP address or error banning IP!", NamedTextColor.RED));
+            }
+
+            return true;
+        }
+
+// /weunbanip <ip>
+        if (cmd.getName().equalsIgnoreCase("weunbanip")) {
+            if (!sender.hasPermission("wardenessentials.unbanip")) {
+                sender.sendMessage(Component.text("You do not have permission to use this command!", NamedTextColor.RED));
+                return true;
+            }
+
+            if (args.length != 1) {
+                sender.sendMessage(Component.text("Usage: /weunbanip <ip>", NamedTextColor.RED));
+                return true;
+            }
+
+            String ip = args[0];
+
+            Bukkit.getBanList(BanList.Type.IP).pardon(ip);
+            sender.sendMessage(Component.text("Unbanned IP: " + ip, NamedTextColor.GREEN));
+            Bukkit.broadcast(Component.text("✅ IP " + ip + " has been unbanned by " + sender.getName() + ".", NamedTextColor.YELLOW));
+
+            return true;
+        }
 
         // --- Rest of your commands (ban, heal, fly, etc.) stay the same ---
 

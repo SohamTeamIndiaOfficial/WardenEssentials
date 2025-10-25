@@ -1,5 +1,5 @@
 name: WardenEssentials
-version: 1.2.4
+version: 1.2.5
 main: com.svhteam.lifesteal.wardenEssentials.WardenEssentials
 api-version: 1.21
 authors: [ NoFailsXD ]
@@ -139,8 +139,18 @@ commands:
      description: Teleport all players to yourself.
      usage: /wetphereall
      permission: wardenessentials.tphereall
-
+  webanip:
+    description: Ban an IP address from the server.
+    usage: /webanip <ip> [reason]
+    permission: wardenessentials.banip
+  weunbanip:
+    description: Unban an IP address.
+    usage: /weunbanip <ip>
+    permission: wardenessentials.unbanip
 permissions:
+  wardenessentials.reload:
+    description: Allow reloading plugin
+    default: op
   wardenessentials.ban:
     description: Allows banning players
     default: op
@@ -239,4 +249,11 @@ permissions:
     description: Allow tping all players to one
     default: op
   wardenessentials.tphereall:
-    description: Allow tping all players to the playe who executed
+    description: Allow tping all players to the player who executed this cmd
+    default: op
+  wardenessentials.banip:
+    description: Allow to use command /webanpip
+    default: op
+  wardenessentials.unbanip:
+    description: Allow to use command /weunbanip
+    default: op
