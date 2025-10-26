@@ -1,6 +1,7 @@
 package com.svhteam.lifesteal.wardenEssentials;
 
 // Imports
+import com.svhteam.lifesteal.wardenEssentials.utils.DuplicateJarChecker;
 import com.svteam.wardenlib.BossBarHandler;
 import com.svteam.wardenlib.ScoreboardAPI;
 import net.kyori.adventure.text.Component;
@@ -73,12 +74,15 @@ public class WardenEssentials extends JavaPlugin implements Listener {
             BossBarHandler.init(title, color, progress);
         }
 
+        getServer().getPluginManager().registerEvents(this, this);
+        new DuplicateJarChecker(this).runCheck();
+
     }
 
     // Check For Updates
     private void checkForUpdates() {
         // The URL should point to a raw text file containing the latest version string
-        String updateUrl = "https://raw.githubusercontent.com/SohamTeamIndiaOfficial/WardenEssentials/refs/heads/master/version.txt";
+        String updateUrl = "https://raw.githubusercontent.com/SohamTeamIndiaOfficial/WardenEssentials/refs/heads/1.2.5/version.txt";
 
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             try {

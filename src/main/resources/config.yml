@@ -28,3 +28,8 @@ bossbar:
   color: "PURPLE"
   # How should progress bar will be filled? default is 1.0.
   progress: 1.0
+
+# SETTINGS
+settings:
+  # Should the plugin check if its jar is duplicated? default is true
+  check-duplicate-jars: true
